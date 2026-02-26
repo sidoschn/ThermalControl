@@ -6,6 +6,11 @@ import paho.mqtt.publish as publish
 import board
 from adafruit_pca9685 import PCA9685
 from adafruit_motor import servo
+import autoUpdate as updater
+
+
+
+updater.performAutoupdate()
 
 
 
