@@ -8,7 +8,7 @@ User=admin
 
 WorkingDirectory=/home/admin/ThermalControl
 ExecStart=/usr/bin/python /home/admin/ThermalControl/temperatureIndicator.py
-StandardOutput=syslog
+StandardOutput=journal
 Restart=on-failure
 RestartSec=10
 KillMode=process
