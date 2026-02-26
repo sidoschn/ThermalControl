@@ -5,6 +5,8 @@ After=multi-user.target network-online.target
 [Service]
 SyslogIdentifier=TempReport
 User=admin
+
+WorkingDirectory=/home/admin/ThermalControl
 ExecStart=/usr/bin/python /home/admin/ThermalControl/tempReport.py
 StandardOutput=syslog
 Restart=on-failure
