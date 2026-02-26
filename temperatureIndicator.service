@@ -3,9 +3,13 @@ Description=TempIndicator
 After=multi-user.target
 
 [Service]
-Type=simple
+SyslogIdentifier=TempIndicator
+User=admin
 ExecStart=/usr/bin/python /home/admin/temperatureIndicator.py
-Restart=on-abort
+StandardOutput=syslog
+Restart=on-failure
+RestartSec=10
+KillMode=process
 
 [Install]
 WantedBy=multi-user.target

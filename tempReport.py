@@ -3,16 +3,18 @@ from ds18b20 import DS18B20
 import time
 import paho.mqtt.publish as publish
 
-sensor = DS18B20()
+#sensor = DS18B20()
 tm = tm1637.TM1637(clk=23, dio=24)
 
 
 mqttTopic01 = "thermalControl/tempAnbauVorlauf"
+mqttTopic02 = "thermalControl/servoAngle"
 mqttBroker = "192.168.0.39"
 
 while True:
-
-  temp = sensor.get_temperature()
+  time.sleep(10)
+  #temp = sensor.get_temperature()
+  temp = 10
   print(temp)
   #strTemp = '%.2f' % temp
   #strTemp = str(temp)
@@ -25,5 +27,7 @@ while True:
   #print(decimals)
   tm.temperature(round(temp))
   publish.single(mqttTopic01, str(temp), hostname=mqttBroker)
+  publish.single(mqttTopic02, "0", hostname=mqttBroker)
+
   #tm.show(strTemp)
-  time.sleep(5)
+  #time.sleep(10)
