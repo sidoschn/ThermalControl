@@ -28,7 +28,7 @@ servo0.angle = 90
 class temperatureController:
   targetTemperature = 40
   currentTemp = 30
-  maxRange = 40
+  maxRange = 50
   mqttTopic01 = "thermalControl/tempAnbauVorlauf"
   mqttTopic02 = "thermalControl/servoAngle"
   mqttBroker = "192.168.0.39"
@@ -46,8 +46,8 @@ class temperatureController:
     self.currentTemp = sensor.get_temperature()
     return self.currentTemp
 
-  def displayTemperature(self):
-    tm.temperature(round(self.currentTemp))
+  def displayTemperature(self, temp):
+    tm.temperature(round(temp))
 
   def publishTemp(self, temp, angle):
     publish.single(self.mqttTopic01, str(temp), hostname=self.mqttBroker)
@@ -58,7 +58,7 @@ class temperatureController:
     while True:
       readTemp = 50
       #readTemp = self.readTemperature()
-      self.displayTemperature()
+      self.displayTemperature(readTemp)
 #      self.publishTemp(readTemp)
       control = self.pid(readTemp)
       self.publishTemp(readTemp, control)
