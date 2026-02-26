@@ -56,7 +56,8 @@ class temperatureController:
   def main(self):
     print("main")
     while True:
-      readTemp = self.readTemperature()
+      readTemp = 11
+      #readTemp = self.readTemperature()
       self.displayTemperature()
 #      self.publishTemp(readTemp)
       control = self.pid(readTemp)
