@@ -1,9 +1,10 @@
 [Unit]
 Description=TempIndicator
-After=multi-user.target
+After=syslog.target network.target multi-user.target network-online.target
 
 [Service]
 SyslogIdentifier=TempIndicator
+Type=simple
 User=admin
 
 WorkingDirectory=/home/admin/ThermalControl

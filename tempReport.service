@@ -1,9 +1,10 @@
 [Unit]
 Description=TempReport
-After=multi-user.target network-online.target
+After=syslog.target network.target multi-user.target network-online.target
 
 [Service]
 SyslogIdentifier=TempReport
+Type=simple
 User=admin
 
 WorkingDirectory=/home/admin/ThermalControl
