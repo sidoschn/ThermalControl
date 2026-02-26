@@ -14,7 +14,7 @@ updater.performAutoupdate()
 
 
 
-sensor = DS18B20()
+#sensor = DS18B20()
 
 tm = tm1637.TM1637(clk=23, dio=24)
 
