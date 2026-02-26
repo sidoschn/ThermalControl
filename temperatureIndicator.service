@@ -5,7 +5,7 @@ After=multi-user.target
 [Service]
 SyslogIdentifier=TempIndicator
 User=admin
-ExecStart=/usr/bin/python /home/admin/temperatureIndicator.py
+ExecStart=/usr/bin/python /home/admin/ThermalControl/temperatureIndicator.py
 StandardOutput=syslog
 Restart=on-failure
 RestartSec=10
