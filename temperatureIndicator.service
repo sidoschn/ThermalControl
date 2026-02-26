@@ -1,0 +1,11 @@
+[Unit]
+Description=TempIndicator
+After=multi-user.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python /home/admin/temperatureIndicator.py
+Restart=on-abort
+
+[Install]
+WantedBy=multi-user.target
