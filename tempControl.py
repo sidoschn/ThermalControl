@@ -14,7 +14,7 @@ updater.performAutoupdate()
 
 
 
-#sensor = DS18B20()
+sensor = DS18B20()
 
 tm = tm1637.TM1637(clk=23, dio=24)
 
@@ -58,10 +58,9 @@ class temperatureController:
   def main(self):
     print("main")
     while True:
-      readTemp = 50
-      #readTemp = self.readTemperature()
+      readTemp = self.readTemperature()
       self.displayTemperature(readTemp)
-#      self.publishTemp(readTemp)
+      #self.publishTemp(readTemp)
       control = self.pid(readTemp)
       self.publishTemp(readTemp, control)
       print(str(control)+" "+str(readTemp))
@@ -75,6 +74,8 @@ temperatureController()
 
 exit()
 
+
+# legacy snippet here for reference
 
 while True:
 
