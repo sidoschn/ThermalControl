@@ -31,11 +31,13 @@ class temperatureController:
   maxRange = 50
   mqttTopic01 = "thermalControl/tempAnbauVorlauf"
   mqttTopic02 = "thermalControl/servoAngle"
+  mqttTopic03 = "thermalControl/tempSetPoint"
+  mqttControlTopic03 = "thermalControl/tempSetPoint/set"
   mqttBroker = "192.168.0.39"
   loopTime = 10
 
   def __init__(self):
-    self.pid = PID(-1, -0.01, -0.5, setpoint=self.targetTemperature, starting_output = 90)
+    self.pid = PID(-1, -0.01, -0.05, setpoint=self.targetTemperature, starting_output = 90)
     self.pid.sample_time = self.loopTime
     self.pid.output_limits = (90-self.maxRange, 90+self.maxRange)
     self.main()
