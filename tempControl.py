@@ -26,7 +26,7 @@ servo0 = servo.Servo(pca.channels[0], min_pulse=500, max_pulse = 2500, actuation
 servo0.angle = 90
 
 class temperatureController:
-  targetTemperature = 40
+  targetTemperature = 35
   currentTemp = 30
   maxRange = 50
   mqttTopic01 = "thermalControl/tempAnbauVorlauf"
