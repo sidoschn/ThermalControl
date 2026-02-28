@@ -14,23 +14,23 @@ pca.frequency = 50
 
 servo0 = servo.Servo(pca.channels[0], min_pulse=500, max_pulse = 2500, actuation_range=180)
 
-range = 45
+range = 90
 
 servo0.angle = 90
 #servo0.angle = 70
 time.sleep(2)
 
-servo0.angle = 90-range
-time.sleep(2)
+# servo0.angle = 90-range
+# time.sleep(2)
 
-servo0.angle = 90
-time.sleep(2)
+# servo0.angle = 90
+# time.sleep(2)
 
-servo0.angle = 90+range
-time.sleep(2)
+# servo0.angle = 90+range
+# time.sleep(2)
 
-servo0.angle = 90
-time.sleep(2)
+# servo0.angle = 90
+# time.sleep(2)
 
 print("done")
 
