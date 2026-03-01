@@ -62,7 +62,7 @@ class temperatureController:
   def publishTemp(self, temp, angle):
     self.mqttClient.publish(self.mqttTopic01, str(temp), qos=2)
     self.mqttClient.publish(self.mqttTopic02, str(angle), qos=2)
-    self.mqttClient.publish(self.mqttTopicTempSetPoint, self.targetTemperature, qos=2)
+    self.mqttClient.publish(self.mqttTopicTempSetPoint, str(self.targetTemperature), qos=2)
 
     #publish.single(self.mqttTopic01, str(temp), hostname=self.mqttBroker)
     #publish.single(self.mqttTopic02, str(angle), hostname=self.mqttBroker)
@@ -76,6 +76,17 @@ class temperatureController:
     print("gotMessage")
     print(message.topic)
     print(message.payload)
+    
+    match message.topic:
+      case self.mqttControlTopicTempSetPoint:
+        print("changing temperature set point to"+ message.payload)
+        print(float(message.payload))
+        self.targetTemperature = float(message.payload)
+        print(self.targetTemperature)
+        client.publish(self.mqttTopicTempSetPoint, str(self.targetTemperature))
+    
+      case _:
+        print("unknown topic, message is ignored")
 
 
   def main(self):
