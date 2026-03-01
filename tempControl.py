@@ -94,22 +94,25 @@ class temperatureController:
         match message.payload[:1]:
           case b'P':
             self.pid.Kp = float(message.payload[1:])
-            printMessage = "set Kp to "+str(float(message.payload[1:]))
-            print(printMessage)
-            client.publish(self.mqttTopicFineTune, printMessage)
+            #printMessage = "set Kp to "+str(float(message.payload[1:]))
+            #print(printMessage)
+            #client.publish(self.mqttTopicFineTune, printMessage)
           case b'I':
             self.pid.Ki = float(message.payload[1:])
-            printMessage = "set Ki to "+str(float(message.payload[1:]))
-            print(printMessage)
-            client.publish(self.mqttTopicFineTune, printMessage)
+            #printMessage = "set Ki to "+str(float(message.payload[1:]))
+            #print(printMessage)
+            #client.publish(self.mqttTopicFineTune, printMessage)
           case b'D':
             self.pid.Kd = float(message.payload[1:])
-            printMessage = "set Kd to "+str(float(message.payload[1:]))
-            print(printMessage)
-            client.publish(self.mqttTopicFineTune, printMessage)
+            #printMessage = "set Kd to "+str(float(message.payload[1:]))
+            #print(printMessage)
+            #client.publish(self.mqttTopicFineTune, printMessage)
           case _:
-            client.publish(self.mqttTopicFineTune, "invalid syntax")
+            #client.publish(self.mqttTopicFineTune, "invalid syntax")
             print("invalid syntax for finetuning")
+        printMessage = "Current PID parameters: "+str(self.pid.Kp)+", "+str(self.pid.Ki)+", "+str(self.pid.Kd)
+        print(printMessage)
+        client.publish(self.mqttTopicFineTune, printMessage)
       case _:
         print("unknown topic, message is ignored")
 
