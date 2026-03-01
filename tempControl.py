@@ -36,6 +36,7 @@ class temperatureController:
   mqttTopic02 = "thermalControl/servoAngle"
   mqttTopicTempSetPoint = "thermalControl/tempSetPoint"
   mqttControlTopicTempSetPoint = "thermalControl/tempSetPoint/set"
+  mqttTopicFineTune = "thermalControl/fineTune"
   mqttControlTopicFineTune = "thermalControl/fineTune/set"
   mqttBroker = "192.168.0.39"
   loopTime = 10
@@ -92,11 +93,20 @@ class temperatureController:
         print(message.payload[:1])
         match message.payload[:1]:
           case b'P':
-            print(float(message.payload[1:]))
+            self.pid.Kp = float(message.payload[1:])
+            printMessage = "set Kp to "+str(float(message.payload[1:]))
+            print(printMessage)
+            client.publish(self.mqttTopicFineTune, printMessage)
           case b'I':
-            print(float(message.payload[1:]))
+            self.pid.Ki = float(message.payload[1:])
+            printMessage = "set Ki to "+str(float(message.payload[1:]))
+            print(printMessage)
+            client.publish(self.mqttTopicFineTune, printMessage)
           case b'D':
-            print(float(message.payload[1:]))
+            self.pid.Kd = float(message.payload[1:])
+            printMessage = "set Kd to "+str(float(message.payload[1:]))
+            print(printMessage)
+            client.publish(self.mqttTopicFineTune, printMessage)
           case _:
             print("invalid syntax for finetuning")
       case _:
