@@ -87,7 +87,18 @@ class temperatureController:
         #print(self.targetTemperature)
         self.pid.setpoint = self.targetTemperature
         client.publish(self.mqttTopicTempSetPoint, str(self.targetTemperature))
-    
+      case self.mqttControlTopicFineTune:
+        print("finetuning PID parameters")
+        print(message.payload[1:2])
+        match message.payload[1:2]:
+          case "P":
+            print(float(message.payload[2:]))
+          case "I":
+            print(float(message.payload[2:]))
+          case "D":
+            print(float(message.payload[2:]))
+          case _:
+            print("invalid syntax for finetuning")
       case _:
         print("unknown topic, message is ignored")
 
