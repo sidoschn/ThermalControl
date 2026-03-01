@@ -3,6 +3,7 @@ from ds18b20 import DS18B20
 import time
 from simple_pid import PID
 import paho.mqtt.publish as publish
+import paho.mqtt.client as mqtt
 import board
 from adafruit_pca9685 import PCA9685
 from adafruit_motor import servo
@@ -29,10 +30,12 @@ class temperatureController:
   targetTemperature = 35
   currentTemp = 30
   maxRange = 50
+  mqttClient = mqtt.Client(client_id="ThermalController")
+  mqttTopicIsAliveState = "thermalControl/isAlive"
   mqttTopic01 = "thermalControl/tempAnbauVorlauf"
   mqttTopic02 = "thermalControl/servoAngle"
-  mqttTopic03 = "thermalControl/tempSetPoint"
-  mqttControlTopic03 = "thermalControl/tempSetPoint/set"
+  mqttTopicTempSetPoint = "thermalControl/tempSetPoint"
+  mqttControlTopicTempSetPoint = "thermalControl/tempSetPoint/set"
   mqttBroker = "192.168.0.39"
   loopTime = 10
 
@@ -40,6 +43,11 @@ class temperatureController:
     self.pid = PID(-1, -0.01, -0.05, setpoint=self.targetTemperature, starting_output = 90)
     self.pid.sample_time = self.loopTime
     self.pid.output_limits = (90-self.maxRange, 90+self.maxRange)
+    self.mqttClient.on_connect = self.on_MqttConnect
+    self.mqttClient.on_message = self.on_MqttMessage
+    self.mqttClient.will_set(self.mqttTopicIsAliveState, '{"state": "OFF"}', qos=2)
+    self.mqttClient.connect(self.mqttBroker, 1883, 60)
+    self.mqttClient.loop_start()
     self.main()
 
   def readTemperature(self):
@@ -52,11 +60,27 @@ class temperatureController:
     tm.temperature(round(temp))
 
   def publishTemp(self, temp, angle):
-    publish.single(self.mqttTopic01, str(temp), hostname=self.mqttBroker)
-    publish.single(self.mqttTopic02, str(angle), hostname=self.mqttBroker)
+    self.mqttClient.publish(self.mqttTopic01, str(temp), qos=2)
+    self.mqttClient.publish(self.mqttTopic02, str(angle), qos=2)
+    self.mqttClient.publish(self.mqttTopicTempSetPoint, self.targetTemperature, qos=2)
+
+    #publish.single(self.mqttTopic01, str(temp), hostname=self.mqttBroker)
+    #publish.single(self.mqttTopic02, str(angle), hostname=self.mqttBroker)
+
+  def on_MqttConnect(self,client, userdata, flags, rc):
+    print("mqtt connected")
+    print(rc)
+    client.subscribe(self.mqttControlTopicTempSetPoint)
+
+  def on_MqttMessage(self,client, userdata, message):
+    print("gotMessage")
+    print(message.topic)
+    print(message.payload)
+
 
   def main(self):
     print("main")
+
     while True:
       readTemp = self.readTemperature()
       self.displayTemperature(readTemp)
