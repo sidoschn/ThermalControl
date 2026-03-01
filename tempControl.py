@@ -36,6 +36,7 @@ class temperatureController:
   mqttTopic02 = "thermalControl/servoAngle"
   mqttTopicTempSetPoint = "thermalControl/tempSetPoint"
   mqttControlTopicTempSetPoint = "thermalControl/tempSetPoint/set"
+  mqttControlTopicFineTune = "thermalControl/fineTune/set"
   mqttBroker = "192.168.0.39"
   loopTime = 10
 
@@ -71,6 +72,7 @@ class temperatureController:
     print("mqtt connected")
     print(rc)
     client.subscribe(self.mqttControlTopicTempSetPoint)
+    client.subscribe(self.mqttControlTopicFineTune)
 
   def on_MqttMessage(self,client, userdata, message):
     print("gotMessage")
