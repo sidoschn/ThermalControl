@@ -92,11 +92,11 @@ class temperatureController:
         print(message.payload[:1])
         match message.payload[:1]:
           case b'P':
-            print(float(message.payload[2:]))
+            print(float(message.payload[1:]))
           case b'I':
-            print(float(message.payload[2:]))
+            print(float(message.payload[1:]))
           case b'D':
-            print(float(message.payload[2:]))
+            print(float(message.payload[1:]))
           case _:
             print("invalid syntax for finetuning")
       case _:
