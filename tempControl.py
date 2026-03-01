@@ -108,6 +108,7 @@ class temperatureController:
             print(printMessage)
             client.publish(self.mqttTopicFineTune, printMessage)
           case _:
+            client.publish(self.mqttTopicFineTune, "invalid syntax")
             print("invalid syntax for finetuning")
       case _:
         print("unknown topic, message is ignored")
