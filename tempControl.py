@@ -83,6 +83,7 @@ class temperatureController:
         #print(float(message.payload))
         self.targetTemperature = float(message.payload)
         #print(self.targetTemperature)
+        self.pid.setpoint = self.targetTemperature
         client.publish(self.mqttTopicTempSetPoint, str(self.targetTemperature))
     
       case _:
