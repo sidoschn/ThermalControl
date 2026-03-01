@@ -89,8 +89,8 @@ class temperatureController:
         client.publish(self.mqttTopicTempSetPoint, str(self.targetTemperature))
       case self.mqttControlTopicFineTune:
         print("finetuning PID parameters")
-        print(message.payload[:2])
-        match message.payload[:2]:
+        print(message.payload[:1])
+        match message.payload[:1]:
           case b'P':
             print(float(message.payload[2:]))
           case b'I':
