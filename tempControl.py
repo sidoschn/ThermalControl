@@ -79,10 +79,10 @@ class temperatureController:
     
     match message.topic:
       case self.mqttControlTopicTempSetPoint:
-        print("changing temperature set point to"+ str(message.payload))
-        print(float(message.payload))
+        print("changing temperature set point to "+ str(float(message.payload)))
+        #print(float(message.payload))
         self.targetTemperature = float(message.payload)
-        print(self.targetTemperature)
+        #print(self.targetTemperature)
         client.publish(self.mqttTopicTempSetPoint, str(self.targetTemperature))
     
       case _:
