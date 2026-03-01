@@ -110,7 +110,7 @@ class temperatureController:
           case _:
             #client.publish(self.mqttTopicFineTune, "invalid syntax")
             print("invalid syntax for finetuning")
-        printMessage = "Current PID parameters= "+str(self.pid.Kp)+" / "+str(self.pid.Ki)+" / "+str(self.pid.Kd)
+        printMessage = "Current PID parameters "+str(self.pid.Kp)+" "+str(self.pid.Ki)+" "+str(self.pid.Kd) # why is this not showing in HA?
         print(printMessage)
         client.publish(self.mqttTopicFineTune, printMessage)
       case _:
