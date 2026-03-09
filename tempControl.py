@@ -13,9 +13,16 @@ import autoUpdate as updater
 
 updater.performAutoupdate()
 
+sensors = []
+sensorList = DS18B20.get_available_sensors
+
+for sensor_id in DS18B20.get_available_sensors():
+    sensors.append(DS18B20(sensor_id))
+    print("sensor: "+ str(sensor_id))
 
 
-sensor = DS18B20()
+
+sensor = sensors[0]
 
 tm = tm1637.TM1637(clk=23, dio=24)
 
