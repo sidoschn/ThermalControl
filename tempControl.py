@@ -17,7 +17,7 @@ updater.performAutoupdate()
 nServos = 1
 
 sensors = []
-sensorList = DS18B20.get_available_sensors
+sensorList = DS18B20.get_available_sensors()
 
 for sensor_id in sensorList:
     sensors.append(DS18B20(sensor_id))
