@@ -13,10 +13,13 @@ import autoUpdate as updater
 
 updater.performAutoupdate()
 
+
+nServos = 1
+
 sensors = []
 sensorList = DS18B20.get_available_sensors
 
-for sensor_id in DS18B20.get_available_sensors():
+for sensor_id in sensorList:
     sensors.append(DS18B20(sensor_id))
     print("sensor: "+ str(sensor_id))
 
@@ -34,6 +37,8 @@ servo0 = servo.Servo(pca.channels[0], min_pulse=500, max_pulse = 2500, actuation
 servo0.angle = 90
 
 class temperatureController:
+  currentTemps = []
+  angles = [None] * nServos
   targetTemperature = 35
   currentTemp = 30
   maxRange = 50
@@ -47,6 +52,16 @@ class temperatureController:
   mqttControlTopicFineTune = "thermalControl/fineTune/set"
   mqttBroker = "192.168.0.39"
   loopTime = 10
+
+  #mqttSensorTopics = []
+  
+  for sensor in sensors:
+    sensorId = sensor.get_id()
+    mqttSensorTopic = "thermalControl/thermalSensors/" + str(sensorId)
+    #mqttSensorTopics.append(mqttSensorTopic)
+    sensor.mqttTopic = mqttSensorTopic
+
+
 
   def __init__(self):
     self.pid = PID(-30, -0.5, -0.0, setpoint=self.targetTemperature, starting_output = 90)
@@ -64,10 +79,40 @@ class temperatureController:
     #print("not implemented yet")
     self.currentTemp = sensor.get_temperature()
     return self.currentTemp
+  
+  def readTemperatures(self):
+    for sensor in sensors:
+      sensor.lastReadTemp = sensor.get_temperature()
+      
+    #print("reading temperature...")
+    #print("not implemented yet")
+    #self.currentTemp = sensor.get_temperature()
+  
 
   def displayTemperature(self, temp):
     tm.temperature(round(temp))
+  
+  def displayTemperatures(self):
+    for sensor in sensors:
+      try:
+        tm.temperature(round(sensor.lastReadTemp))
+        time.sleep(2)
+      except:
+        print("temperature has not been read")
 
+  def publishTemps(self):
+    for sensor in sensors:
+      self.mqttClient.publish(sensor.mqttTopic , str(sensor.lastReadTemp), qos=2)
+    
+    self.mqttClient.publish(self.mqttTopicTempSetPoint, str(self.targetTemperature), qos=2)
+
+  def publishAngles(self, angles):
+    for angle in angles:
+      self.mqttClient.publish(self.mqttTopic02, str(angle), qos=2)
+    #publish.single(self.mqttTopic01, str(temp), hostname=self.mqttBroker)
+    #publish.single(self.mqttTopic02, str(angle), hostname=self.mqttBroker)
+
+  
   def publishTemp(self, temp, angle):
     self.mqttClient.publish(self.mqttTopic01, str(temp), qos=2)
     self.mqttClient.publish(self.mqttTopic02, str(angle), qos=2)
@@ -128,14 +173,15 @@ class temperatureController:
     print("main")
 
     while True:
-      readTemp = self.readTemperature()
-      self.displayTemperature(readTemp)
+      self.readTemperatures()
+      self.displayTemperatures()
       #self.publishTemp(readTemp)
-      control = self.pid(readTemp)
-      self.publishTemp(readTemp, control)
-      print(str(control)+" "+str(readTemp))
+      self.angles[0] = self.pid(sensors[0].lastReadTemp)
+      self.publishAngles(self.angles)
+      self.publishTemps()
+      print(str(self.angles[0])+" "+str(sensors[0].lastReadTemp))
       try:
-        servo0.angle = float(control)
+        servo0.angle = float(self.angles[0])
       except:
         print("i2c com failure")
       time.sleep(self.loopTime)
