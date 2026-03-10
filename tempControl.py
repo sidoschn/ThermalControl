@@ -8,7 +8,7 @@ import board
 from adafruit_pca9685 import PCA9685
 from adafruit_motor import servo
 import autoUpdate as updater
-
+from string import ascii_uppercase
 
 
 updater.performAutoupdate()
@@ -54,12 +54,17 @@ class temperatureController:
   loopTime = 10
 
   #mqttSensorTopics = []
-  
+  iterator = 0
   for sensor in sensors:
     sensorId = sensor.get_id()
-    mqttSensorTopic = "thermalControl/thermalSensors/" + str(sensorId)
+    shortID = ascii_uppercase[iterator]
+
+    mqttSensorTopic = "thermalControl/thermalSensors/" + shortID+ str(sensorId)
     #mqttSensorTopics.append(mqttSensorTopic)
     sensor.mqttTopic = mqttSensorTopic
+    
+    sensor.shortID = shortID
+    iterator = iterator + 1
 
 
 
