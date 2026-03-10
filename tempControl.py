@@ -49,7 +49,7 @@ class temperatureController:
   loopTime = 10
 
   def __init__(self):
-    self.pid = PID(-10, -0.0, -0.0, setpoint=self.targetTemperature, starting_output = 90)
+    self.pid = PID(-30, -0.5, -0.0, setpoint=self.targetTemperature, starting_output = 90)
     self.pid.sample_time = self.loopTime
     self.pid.output_limits = (90-self.maxRange, 90+self.maxRange)
     self.mqttClient.on_connect = self.on_MqttConnect
