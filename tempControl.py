@@ -9,6 +9,7 @@ from adafruit_pca9685 import PCA9685
 from adafruit_motor import servo
 import autoUpdate as updater
 from string import ascii_uppercase
+import threading
 
 
 updater.performAutoupdate()
@@ -62,6 +63,7 @@ class temperatureController:
     mqttSensorTopic = "thermalControl/thermalSensors/" + shortID+ str(sensorId)
     #mqttSensorTopics.append(mqttSensorTopic)
     sensor.mqttTopic = mqttSensorTopic
+    #sensor.lastReadTemp = 0
     
     sensor.shortID = shortID
     iterator = iterator + 1
@@ -98,12 +100,16 @@ class temperatureController:
     tm.temperature(round(temp))
   
   def displayTemperatures(self):
-    for sensor in sensors:
-      try:
-        tm.temperature(round(sensor.lastReadTemp))
-        time.sleep(2)
-      except:
-        print("temperature has not been read")
+    while True:
+      for sensor in sensors:
+        try:
+          #tm.temperature(round(sensor.lastReadTemp))
+          tm.show(str(sensor.shortID)+" "+str(round(sensor.lastReadTemp)))
+          time.sleep(2)
+        except:
+          tm.show(str(sensor.shortID)+" --")
+          time.sleep(2)
+          print("temperature has not been read")
 
   def publishTemps(self):
     for sensor in sensors:
@@ -177,9 +183,12 @@ class temperatureController:
   def main(self):
     print("main")
 
+    displayTemperaturesThread = threading.Thread(target=self.displayTemperatures, daemon=True)
+    displayTemperaturesThread.start()
+
     while True:
       self.readTemperatures()
-      self.displayTemperatures()
+      #self.displayTemperatures()
       #self.publishTemp(readTemp)
       self.angles[0] = self.pid(sensors[0].lastReadTemp)
       self.publishAngles(self.angles)
