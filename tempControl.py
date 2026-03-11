@@ -186,6 +186,11 @@ class temperatureController:
     for sensor in self.sensors:
       if sensor.shortID == self.configData[self.configSectionGeneral]["PIDsensor"]:
         return sensor
+      
+    print("ERROR: NO SENSOR IS ASSOCIATED WITH THE PID CONTROLLER")
+    print("!!check associations in the config.ini!!")
+    print("exiting...")
+    exit()
         
 
 
