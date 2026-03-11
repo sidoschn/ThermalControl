@@ -101,11 +101,11 @@ class temperatureController:
     
     #self.sensors = self.loadThemralSensors()
 
-    print(self.configData[self.configSectionGeneral]["PIDp"])
-    print(self.configData[self.configSectionGeneral]["PIDi"])
-    print(float(self.configData[self.configSectionGeneral]["PIDi"]))
+    #print(self.configData[self.configSectionGeneral]["PIDp"])
+    #print(self.configData[self.configSectionGeneral]["PIDi"])
+    #print(float(self.configData[self.configSectionGeneral]["PIDi"]))
 
-    self.pid = PID(float(self.configData[self.configSectionGeneral]["PIDp"]), float(self.configData[self.configSectionGeneral]["PIDi"], float(self.configData[self.configSectionGeneral]["PIDd"])), setpoint=float(self.configData[self.configSectionGeneral]["targetTemperature01"]), starting_output = 90)
+    self.pid = PID(float(self.configData[self.configSectionGeneral]["PIDp"]), float(self.configData[self.configSectionGeneral]["PIDi"]), float(self.configData[self.configSectionGeneral]["PIDd"]), setpoint=float(self.configData[self.configSectionGeneral]["targetTemperature01"]), starting_output = 90)
     self.pid.sample_time = int(self.configData[self.configSectionGeneral]["samplingLoopTime"])
     self.pid.output_limits = (90-int(self.configData[self.configSectionGeneral]["maxAngleRange"]), 90+int(self.configData[self.configSectionGeneral]["maxAngleRange"]))
     self.mqttClient.on_connect = self.on_MqttConnect
