@@ -59,6 +59,7 @@ class temperatureController:
   configSectionGeneral = "General"
   configSectionMQTT = "MQTT"
 
+  defaultConfig[configSectionGeneral] = {}
   defaultConfig[configSectionGeneral]["targetTemperature01"] = 35
   defaultConfig[configSectionGeneral]["maxAngleRange"] = 50
   defaultConfig[configSectionGeneral]["samplingLoopTime"] = 10
@@ -67,6 +68,7 @@ class temperatureController:
   defaultConfig[configSectionGeneral]["PIDi"] = -0.5
   defaultConfig[configSectionGeneral]["PIDd"] = 0
   
+  defaultConfig[configSectionMQTT] = {}
   defaultConfig[configSectionMQTT]["clientID"] = "ThermalController"
   defaultConfig[configSectionMQTT]["brokerIP"] = "192.168.0.39"
   defaultConfig[configSectionMQTT]["brokerPort"] = 1883
