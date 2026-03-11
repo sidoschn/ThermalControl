@@ -60,18 +60,18 @@ class temperatureController:
   configSectionMQTT = "MQTT"
 
   defaultConfig[configSectionGeneral] = {}
-  defaultConfig[configSectionGeneral]["targetTemperature01"] = 35
-  defaultConfig[configSectionGeneral]["maxAngleRange"] = 50
-  defaultConfig[configSectionGeneral]["samplingLoopTime"] = 10
-  defaultConfig[configSectionGeneral]["displayLoopTime"] = 10
-  defaultConfig[configSectionGeneral]["PIDp"] = -30
-  defaultConfig[configSectionGeneral]["PIDi"] = -0.5
-  defaultConfig[configSectionGeneral]["PIDd"] = 0
+  defaultConfig[configSectionGeneral]["targetTemperature01"] = str(35)
+  defaultConfig[configSectionGeneral]["maxAngleRange"] = str(50)
+  defaultConfig[configSectionGeneral]["samplingLoopTime"] = str(10)
+  defaultConfig[configSectionGeneral]["displayLoopTime"] = str(10)
+  defaultConfig[configSectionGeneral]["PIDp"] = str(-30)
+  defaultConfig[configSectionGeneral]["PIDi"] = str(-0.5)
+  defaultConfig[configSectionGeneral]["PIDd"] = str(0)
   
   defaultConfig[configSectionMQTT] = {}
   defaultConfig[configSectionMQTT]["clientID"] = "ThermalController"
   defaultConfig[configSectionMQTT]["brokerIP"] = "192.168.0.39"
-  defaultConfig[configSectionMQTT]["brokerPort"] = 1883
+  defaultConfig[configSectionMQTT]["brokerPort"] = str(1883)
   defaultConfig[configSectionMQTT]["brokerIP"] = "192.168.0.39"
   defaultConfig[configSectionMQTT]["topicIsAlive"] = "thermalControl/isAlive"
   defaultConfig[configSectionMQTT]["topicTempSetPoint"] = "thermalControl/tempSetPoint"
@@ -101,7 +101,7 @@ class temperatureController:
     
     #self.sensors = self.loadThemralSensors()
 
-    self.pid = PID(int(self.configData[self.configSectionGeneral]["PIDp"]), int(self.configData[self.configSectionGeneral]["PIDi"], self.configData[self.configSectionGeneral]["PIDd"]), setpoint=int(self.configData[self.configSectionGeneral]["targetTemperature01"]), starting_output = 90)
+    self.pid = PID(float(self.configData[self.configSectionGeneral]["PIDp"]), float(self.configData[self.configSectionGeneral]["PIDi"], float(self.configData[self.configSectionGeneral]["PIDd"])), setpoint=float(self.configData[self.configSectionGeneral]["targetTemperature01"]), starting_output = 90)
     self.pid.sample_time = int(self.configData[self.configSectionGeneral]["samplingLoopTime"])
     self.pid.output_limits = (90-int(self.configData[self.configSectionGeneral]["maxAngleRange"]), 90+int(self.configData[self.configSectionGeneral]["maxAngleRange"]))
     self.mqttClient.on_connect = self.on_MqttConnect
