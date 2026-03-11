@@ -18,14 +18,14 @@ updater.performAutoupdate()
 
 
 nServos = 1
-sensors = []
-sensorList = DS18B20.get_available_sensors()
+# #legacy
+# sensors = []
+# sensorList = DS18B20.get_available_sensors()
+# for sensor_id in sensorList:
+#     sensors.append(DS18B20(sensor_id))
+#     print("sensor: "+ str(sensor_id))
 
-for sensor_id in sensorList:
-    sensors.append(DS18B20(sensor_id))
-    print("sensor: "+ str(sensor_id))
-
-sensor = sensors[0]
+# sensor = sensors[0]
 
 tm = tm1637.TM1637(clk=23, dio=24)
 
@@ -43,6 +43,7 @@ class temperatureController:
   #targetTemperature = 35 # legacy
   currentTemp = 30
   maxRange = 50 #
+  sensors = []
   
   mqttTopicIsAliveState = "thermalControl/isAlive"
   #mqttTopic01 = "thermalControl/tempAnbauVorlauf" #legacy
@@ -68,6 +69,8 @@ class temperatureController:
   defaultConfig[configSectionGeneral]["PIDp"] = str(-30)
   defaultConfig[configSectionGeneral]["PIDi"] = str(-0.5)
   defaultConfig[configSectionGeneral]["PIDd"] = str(0)
+  defaultConfig[configSectionGeneral]["PIDsensor"] = "A"
+
   
   defaultConfig[configSectionMQTT] = {}
   defaultConfig[configSectionMQTT]["clientID"] = "ThermalController"
@@ -79,22 +82,28 @@ class temperatureController:
   defaultConfig[configSectionMQTT]["controlTopicTempSetPoint"] = "thermalControl/tempSetPoint/set"
   defaultConfig[configSectionMQTT]["topicFineTune"] = "thermalControl/fineTune"
   defaultConfig[configSectionMQTT]["controlTopicFineTune"] = "thermalControl/fineTune/set"
+  defaultConfig[configSectionMQTT]["thermalSensorBaseTopic"] = "thermalControl/thermalSensors/"
 
   defaultConfig[configSectionSensors] = {}
-  
-  iterator = 0
-  
-  for sensor in sensors:
-    sensorId = sensor.get_id()
-    shortID = ascii_uppercase[iterator]
+  # sensor structure:
+  # #problably unneccessarily complex {sensorID : {shortId:"short ID(eg. A, B,...)", description:"some description"}}
+  # {sensorID : shortId}
 
-    mqttSensorTopic = "thermalControl/thermalSensors/" + shortID+ str(sensorId)
-    #mqttSensorTopics.append(mqttSensorTopic)
-    sensor.mqttTopic = mqttSensorTopic
-    #sensor.lastReadTemp = 0
+
+  # #legacy
+  # iterator = 0
+  
+  # for sensor in sensors:
+  #   sensorId = sensor.get_id()
+  #   shortID = ascii_uppercase[iterator]
+
+  #   mqttSensorTopic = "thermalControl/thermalSensors/" + shortID+ str(sensorId)
+  #   #mqttSensorTopics.append(mqttSensorTopic)
+  #   sensor.mqttTopic = mqttSensorTopic
+  #   #sensor.lastReadTemp = 0
     
-    sensor.shortID = shortID
-    iterator = iterator + 1
+  #   sensor.shortID = shortID
+  #   iterator = iterator + 1
 
 
 
@@ -103,7 +112,8 @@ class temperatureController:
     ## -- loading config
     self.configData = self.loadConfig()
     
-    #self.sensors = self.loadThemralSensors()
+    self.sensors = self.loadThemralSensors()
+    self.initializeThermalSensors()
 
     #print(self.configData[self.configSectionGeneral]["PIDp"])
     #print(self.configData[self.configSectionGeneral]["PIDi"])
@@ -115,6 +125,7 @@ class temperatureController:
     self.pid.output_limits = (90-int(self.configData[self.configSectionGeneral]["maxAngleRange"]), 90+int(self.configData[self.configSectionGeneral]["maxAngleRange"]))
     print("setpoint temperature: "+str(self.pid.setpoint))
 
+    self.pid.sensor = self.assignSensorToPID(self.pid)
 
     ## -- initializing mqtt client
     self.mqttClient = mqtt.Client(client_id="ThermalController")
@@ -151,6 +162,35 @@ class temperatureController:
       print("sensor: "+ str(sensor_id))
     return sensors
   
+  def initializeThermalSensors(self):
+        
+    for sensor in self.sensors:
+      sensorId = sensor.get_id()
+      if sensorId in self.configData[self.configSectionSensors]:
+        print("sensor is known")
+        shortID = self.configData[self.configSectionSensors][sensorId]
+        print("assigning short ID: "+shortID+" to sensor "+sensorId+" (change associations in config.ini)")
+      else:
+        print("sensor is new")
+        shortID = ascii_uppercase[len(self.configData[self.configSectionSensors])]
+        print("assigning short ID: "+shortID+" to sensor "+sensorId+" (change associations in config.ini)")
+        self.configData[self.configSectionSensors][sensorId] = shortID
+        self.updateConfig()
+        
+      mqttSensorTopic = self.configData[self.configSectionMQTT]["thermalSensorBaseTopic"] + shortID
+      sensor.mqttTopic = mqttSensorTopic
+      sensor.shortID = shortID
+      
+  def assignSensorToPID(self, pid):
+    
+    for sensor in self.sensors:
+      if sensor.shortID == self.configData[self.configSectionGeneral]["PIDsensor"]:
+        return sensor
+        
+
+
+
+  
   # # legacy
   # def readTemperature(self):
   #   #print("reading temperature...")
@@ -159,7 +199,7 @@ class temperatureController:
   #   return self.currentTemp
   
   def readTemperatures(self):
-    for sensor in sensors:
+    for sensor in self.sensors:
       sensor.lastReadTemp = sensor.get_temperature()
       
     #print("reading temperature...")
@@ -172,19 +212,19 @@ class temperatureController:
   
   def displayTemperatures(self):
     while True:
-      for sensor in sensors:
+      for sensor in self.sensors:
         try:
           #tm.temperature(round(sensor.lastReadTemp))
           tm.show(str(sensor.shortID)+" "+str(round(sensor.lastReadTemp)))
           time.sleep(float(self.configData[self.configSectionGeneral]["displayLoopTime"]))
           print("Display: "+str(sensor.shortID)+" "+str((sensor.lastReadTemp)))
         except:
-          tm.show(str(sensor.shortID)+" --")
+          tm.show("----")
           time.sleep(float(self.configData[self.configSectionGeneral]["displayLoopTime"]))
-          print("temperature has not been read")
+          print("temperature has not been read/short ID was not yet assigned")
 
   def publishTemps(self):
-    for sensor in sensors:
+    for sensor in self.sensors:
       self.mqttClient.publish(sensor.mqttTopic , str(sensor.lastReadTemp), qos=2)
     
     self.mqttClient.publish(self.configData[self.configSectionMQTT]["topicTempSetPoint"], str(self.pid.setpoint), qos=2)
@@ -279,10 +319,10 @@ class temperatureController:
       self.readTemperatures()
       #self.displayTemperatures()
       #self.publishTemp(readTemp)
-      self.angles[0] = self.pid(sensors[0].lastReadTemp)
+      self.angles[0] = self.pid(self.pid.sensor.lastReadTemp)
       self.publishAngles(self.angles)
       self.publishTemps()
-      print(str(self.angles[0])+" "+str(sensors[0].lastReadTemp))
+      print(str(self.angles[0])+" "+str(self.pid.sensor.lastReadTemp))
       try:
         servo0.angle = float(self.angles[0])
       except:
