@@ -121,8 +121,6 @@ class temperatureController:
     self.mqttClient.connect(self.configData[self.configSectionMQTT]["brokerIP"], int(self.configData[self.configSectionMQTT]["brokerPort"]), 60)
     self.mqttClient.loop_start()
 
-    
-
     self.main()
 
   def loadConfig(self):
@@ -149,6 +147,7 @@ class temperatureController:
       sensors.append(DS18B20(sensor_id))
       print("sensor: "+ str(sensor_id))
     return sensors
+  
   # # legacy
   # def readTemperature(self):
   #   #print("reading temperature...")
@@ -174,10 +173,10 @@ class temperatureController:
         try:
           #tm.temperature(round(sensor.lastReadTemp))
           tm.show(str(sensor.shortID)+" "+str(round(sensor.lastReadTemp)))
-          time.sleep(2)
+          time.sleep(self.configData[self.configSectionGeneral]["displayLoopTime"])
         except:
           tm.show(str(sensor.shortID)+" --")
-          time.sleep(2)
+          time.sleep(self.configData[self.configSectionGeneral]["displayLoopTime"])
           print("temperature has not been read")
 
   def publishTemps(self):
