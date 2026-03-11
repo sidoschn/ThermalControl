@@ -58,6 +58,7 @@ class temperatureController:
   defaultConfig = configparser.ConfigParser()
   configSectionGeneral = "General"
   configSectionMQTT = "MQTT"
+  configSectionSensors = "Sensors"
 
   defaultConfig[configSectionGeneral] = {}
   defaultConfig[configSectionGeneral]["targetTemperature01"] = str(35)
@@ -78,6 +79,8 @@ class temperatureController:
   defaultConfig[configSectionMQTT]["controlTopicTempSetPoint"] = "thermalControl/tempSetPoint/set"
   defaultConfig[configSectionMQTT]["topicFineTune"] = "thermalControl/fineTune"
   defaultConfig[configSectionMQTT]["controlTopicFineTune"] = "thermalControl/fineTune/set"
+
+  defaultConfig[configSectionSensors] = {}
   
   iterator = 0
   
