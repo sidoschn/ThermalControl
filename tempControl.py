@@ -112,7 +112,7 @@ class temperatureController:
     ## -- loading config
     self.configData = self.loadConfig()
     
-    self.sensors = self.loadThemralSensors()
+    self.sensors = self.loadThermalSensors()
     self.initializeThermalSensors()
 
     #print(self.configData[self.configSectionGeneral]["PIDp"])
