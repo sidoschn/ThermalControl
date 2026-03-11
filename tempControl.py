@@ -108,7 +108,7 @@ class temperatureController:
 
     
     self.pid = PID(float(self.configData[self.configSectionGeneral]["PIDp"]), float(self.configData[self.configSectionGeneral]["PIDi"]), float(self.configData[self.configSectionGeneral]["PIDd"]), setpoint=float(self.configData[self.configSectionGeneral]["targetTemperature01"]), starting_output = 90)
-    self.pid.sample_time = int(self.configData[self.configSectionGeneral]["samplingLoopTime"])
+    self.pid.sample_time = float(self.configData[self.configSectionGeneral]["samplingLoopTime"])
     self.pid.output_limits = (90-int(self.configData[self.configSectionGeneral]["maxAngleRange"]), 90+int(self.configData[self.configSectionGeneral]["maxAngleRange"]))
     print("setpoint temperature: "+str(self.pid.setpoint))
 
@@ -173,10 +173,10 @@ class temperatureController:
         try:
           #tm.temperature(round(sensor.lastReadTemp))
           tm.show(str(sensor.shortID)+" "+str(round(sensor.lastReadTemp)))
-          time.sleep(self.configData[self.configSectionGeneral]["displayLoopTime"])
+          time.sleep(float(self.configData[self.configSectionGeneral]["displayLoopTime"]))
         except:
           tm.show(str(sensor.shortID)+" --")
-          time.sleep(self.configData[self.configSectionGeneral]["displayLoopTime"])
+          time.sleep(float(self.configData[self.configSectionGeneral]["displayLoopTime"]))
           print("temperature has not been read")
 
   def publishTemps(self):
@@ -283,7 +283,8 @@ class temperatureController:
         servo0.angle = float(self.angles[0])
       except:
         print("i2c com failure")
-      time.sleep(self.loopTime)
+
+      time.sleep(float(self.configData[self.configSectionGeneral]["samplingLoopTime"]))
 
 temperatureController()
 
