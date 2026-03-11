@@ -63,7 +63,7 @@ class temperatureController:
   defaultConfig[configSectionGeneral]["targetTemperature01"] = str(35)
   defaultConfig[configSectionGeneral]["maxAngleRange"] = str(50)
   defaultConfig[configSectionGeneral]["samplingLoopTime"] = str(10)
-  defaultConfig[configSectionGeneral]["displayLoopTime"] = str(10)
+  defaultConfig[configSectionGeneral]["displayLoopTime"] = str(5)
   defaultConfig[configSectionGeneral]["PIDp"] = str(-30)
   defaultConfig[configSectionGeneral]["PIDi"] = str(-0.5)
   defaultConfig[configSectionGeneral]["PIDd"] = str(0)
@@ -164,9 +164,9 @@ class temperatureController:
     #print("not implemented yet")
     #self.currentTemp = sensor.get_temperature()
   
-
-  def displayTemperature(self, temp):
-    tm.temperature(round(temp))
+  # #legacy
+  # def displayTemperature(self, temp):
+  #   tm.temperature(round(temp))
   
   def displayTemperatures(self):
     while True:
@@ -192,14 +192,14 @@ class temperatureController:
     #publish.single(self.mqttTopic01, str(temp), hostname=self.mqttBroker)
     #publish.single(self.mqttTopic02, str(angle), hostname=self.mqttBroker)
 
-  
-  def publishTemp(self, temp, angle):
-    self.mqttClient.publish(self.mqttTopic01, str(temp), qos=2)
-    self.mqttClient.publish(self.mqttTopic02, str(angle), qos=2)
-    self.mqttClient.publish(self.mqttTopicTempSetPoint, str(self.targetTemperature), qos=2)
+  # #legacy
+  # def publishTemp(self, temp, angle):
+  #   self.mqttClient.publish(self.mqttTopic01, str(temp), qos=2)
+  #   self.mqttClient.publish(self.mqttTopic02, str(angle), qos=2)
+  #   self.mqttClient.publish(self.mqttTopicTempSetPoint, str(self.targetTemperature), qos=2)
 
-    #publish.single(self.mqttTopic01, str(temp), hostname=self.mqttBroker)
-    #publish.single(self.mqttTopic02, str(angle), hostname=self.mqttBroker)
+  #   #publish.single(self.mqttTopic01, str(temp), hostname=self.mqttBroker)
+  #   #publish.single(self.mqttTopic02, str(angle), hostname=self.mqttBroker)
 
   def on_MqttConnect(self,client, userdata, flags, rc):
     print("mqtt connected")
