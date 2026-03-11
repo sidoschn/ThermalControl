@@ -202,7 +202,11 @@ class temperatureController:
     print(rc)
     client.subscribe(self.mqttControlTopicTempSetPoint)
     client.subscribe(self.mqttControlTopicFineTune)
-    client.publish(self.configData[self.configSectionMQTT]["topicIsAlive"], '{"state": "OFF"}', qos=2)
+    client.publish(self.configData[self.configSectionMQTT]["topicIsAlive"], '{"state": "ON"}', qos=2)
+    client.publish(self.configData[self.configSectionMQTT]["topicTempSetPoint"], str(self.pid.setpoint) , qos=2)
+    printMessage = "Current PID parameters "+str(self.pid.Kp)+" "+str(self.pid.Ki)+" "+str(self.pid.Kd)
+    print(printMessage)
+    client.publish(self.configData[self.configSectionMQTT]["topicFineTune"], printMessage)
 
   def on_MqttMessage(self,client, userdata, message):
     print("gotMessage")
@@ -239,7 +243,7 @@ class temperatureController:
           case _:
             #client.publish(self.mqttTopicFineTune, "invalid syntax")
             print("invalid syntax for finetuning")
-        printMessage = "Current PID parameters "+str(self.pid.Kp)+" "+str(self.pid.Ki)+" "+str(self.pid.Kd) # why is this not showing in HA?
+        printMessage = "Current PID parameters "+str(self.pid.Kp)+" "+str(self.pid.Ki)+" "+str(self.pid.Kd)
         print(printMessage)
         client.publish(self.mqttTopicFineTune, printMessage)
       case _:
