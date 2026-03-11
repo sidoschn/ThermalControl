@@ -138,6 +138,10 @@ class temperatureController:
 
     return configData
 
+  def updateConfig(self):
+    with open(self.configFileName, 'w') as configFile:
+      self.configData.write(configFile)
+
   def loadThermalSensors(self):
     sensorList = DS18B20.get_available_sensors()
     sensors = []
@@ -219,26 +223,36 @@ class temperatureController:
       case self.mqttControlTopicTempSetPoint:
         print("changing temperature set point to "+ str(float(message.payload)))
         #print(float(message.payload))
-        self.targetTemperature = float(message.payload)
+        
         #print(self.targetTemperature)
-        self.pid.setpoint = self.targetTemperature
-        client.publish(self.mqttTopicTempSetPoint, str(self.targetTemperature))
+        self.pid.setpoint = float(message.payload)
+
+        self.configData[self.configSectionGeneral]["targetTemperature01"] = str(self.pid.setpoint)
+        self.updateConfig()
+        client.publish(self.mqttTopicTempSetPoint, str(self.pid.setpoint))
+
       case self.mqttControlTopicFineTune:
         print("finetuning PID parameters")
         print(message.payload[:1])
         match message.payload[:1]:
           case b'P':
             self.pid.Kp = float(message.payload[1:])
+            self.configData[self.configSectionGeneral]["PIDp"] = str(self.pid.Kp)
+            self.updateConfig()
             #printMessage = "set Kp to "+str(float(message.payload[1:]))
             #print(printMessage)
             #client.publish(self.mqttTopicFineTune, printMessage)
           case b'I':
             self.pid.Ki = float(message.payload[1:])
+            self.configData[self.configSectionGeneral]["PIDi"] = str(self.pid.Ki)
+            self.updateConfig()
             #printMessage = "set Ki to "+str(float(message.payload[1:]))
             #print(printMessage)
             #client.publish(self.mqttTopicFineTune, printMessage)
           case b'D':
             self.pid.Kd = float(message.payload[1:])
+            self.configData[self.configSectionGeneral]["PIDd"] = str(self.pid.Kd)
+            self.updateConfig()
             #printMessage = "set Kd to "+str(float(message.payload[1:]))
             #print(printMessage)
             #client.publish(self.mqttTopicFineTune, printMessage)
