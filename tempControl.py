@@ -10,21 +10,20 @@ from adafruit_motor import servo
 import autoUpdate as updater
 from string import ascii_uppercase
 import threading
-
+import configparser
+import os.path
 
 updater.performAutoupdate()
 
 
-nServos = 1
 
+nServos = 1
 sensors = []
 sensorList = DS18B20.get_available_sensors()
 
 for sensor_id in sensorList:
     sensors.append(DS18B20(sensor_id))
     print("sensor: "+ str(sensor_id))
-
-
 
 sensor = sensors[0]
 
@@ -38,15 +37,16 @@ servo0 = servo.Servo(pca.channels[0], min_pulse=500, max_pulse = 2500, actuation
 servo0.angle = 90
 
 class temperatureController:
+  configFileName = "thermalControlConfig.ini"
   currentTemps = []
   angles = [None] * nServos
-  targetTemperature = 35
+  targetTemperature = 35 #
   currentTemp = 30
-  maxRange = 50
+  maxRange = 50 #
   mqttClient = mqtt.Client(client_id="ThermalController")
   mqttTopicIsAliveState = "thermalControl/isAlive"
-  mqttTopic01 = "thermalControl/tempAnbauVorlauf"
-  mqttTopic02 = "thermalControl/servoAngle"
+  #mqttTopic01 = "thermalControl/tempAnbauVorlauf" #legacy
+  #mqttTopic02 = "thermalControl/servoAngle" #legacy
   mqttTopicTempSetPoint = "thermalControl/tempSetPoint"
   mqttControlTopicTempSetPoint = "thermalControl/tempSetPoint/set"
   mqttTopicFineTune = "thermalControl/fineTune"
@@ -54,8 +54,31 @@ class temperatureController:
   mqttBroker = "192.168.0.39"
   loopTime = 10
 
-  #mqttSensorTopics = []
+  #defining the default config dict the config.ini is generated from
+  defaultConfig = configparser.ConfigParser()
+  configSectionGeneral = "General"
+  configSectionMQTT = "MQTT"
+
+  defaultConfig[configSectionGeneral]["targetTemperature01"] = 35
+  defaultConfig[configSectionGeneral]["maxAngleRange"] = 50
+  defaultConfig[configSectionGeneral]["samplingLoopTime"] = 10
+  defaultConfig[configSectionGeneral]["displayLoopTime"] = 10
+  defaultConfig[configSectionGeneral]["PIDp"] = -30
+  defaultConfig[configSectionGeneral]["PIDi"] = -0.5
+  defaultConfig[configSectionGeneral]["PIDd"] = 0
+  
+  defaultConfig[configSectionMQTT]["clientID"] = "ThermalController"
+  defaultConfig[configSectionMQTT]["brokerIP"] = "192.168.0.39"
+  defaultConfig[configSectionMQTT]["brokerPort"] = 1883
+  defaultConfig[configSectionMQTT]["brokerIP"] = "192.168.0.39"
+  defaultConfig[configSectionMQTT]["topicIsAlive"] = "thermalControl/isAlive"
+  defaultConfig[configSectionMQTT]["topicTempSetPoint"] = "thermalControl/tempSetPoint"
+  defaultConfig[configSectionMQTT]["controlTopicTempSetPoint"] = "thermalControl/tempSetPoint/set"
+  defaultConfig[configSectionMQTT]["topicFineTune"] = "thermalControl/fineTune"
+  defaultConfig[configSectionMQTT]["controlTopicFineTune"] = "thermalControl/fineTune/set"
+  
   iterator = 0
+  
   for sensor in sensors:
     sensorId = sensor.get_id()
     shortID = ascii_uppercase[iterator]
@@ -71,15 +94,44 @@ class temperatureController:
 
 
   def __init__(self):
-    self.pid = PID(-30, -0.5, -0.0, setpoint=self.targetTemperature, starting_output = 90)
-    self.pid.sample_time = self.loopTime
-    self.pid.output_limits = (90-self.maxRange, 90+self.maxRange)
+
+    self.configData = self.loadConifg()
+    
+    #self.sensors = self.loadThemralSensors()
+
+    self.pid = PID(int(self.configData[self.configSectionGeneral]["PIDp"]), int(self.configData[self.configSectionGeneral]["PIDi"], self.configData[self.configSectionGeneral]["PIDd"]), setpoint=int(self.configData[self.configSectionGeneral]["targetTemperature01"]), starting_output = 90)
+    self.pid.sample_time = int(self.configData[self.configSectionGeneral]["samplingLoopTime"])
+    self.pid.output_limits = (90-int(self.configData[self.configSectionGeneral]["maxAngleRange"]), 90+int(self.configData[self.configSectionGeneral]["maxAngleRange"]))
     self.mqttClient.on_connect = self.on_MqttConnect
     self.mqttClient.on_message = self.on_MqttMessage
-    self.mqttClient.will_set(self.mqttTopicIsAliveState, '{"state": "OFF"}', qos=2)
-    self.mqttClient.connect(self.mqttBroker, 1883, 60)
+    self.mqttClient.will_set(self.configData[self.configSectionMQTT]["topicIsAlive"], '{"state": "OFF"}', qos=2)
+    self.mqttClient.connect(self.configData[self.configSectionMQTT]["brokerIP"], int(self.configData[self.configSectionMQTT]["brokerPort"]), 60)
     self.mqttClient.loop_start()
+
+    
+
     self.main()
+
+  def loadConfig(self):
+    
+    if not os.path.isfile(self.configFileName):
+      print("generating new config file from defaults")
+      with open(self.configFileName, 'w') as configFile:
+        self.defaultConfig.write(configFile)
+
+    print("reading config from file: "+ self.configFileName)
+    configData = configparser.ConfigParser()
+    configData.read(self.configFileName)
+
+    return configData
+
+  def loadThermalSensors(self):
+    sensorList = DS18B20.get_available_sensors()
+    sensors = []
+    for sensor_id in sensorList:
+      sensors.append(DS18B20(sensor_id))
+      print("sensor: "+ str(sensor_id))
+    return sensors
 
   def readTemperature(self):
     #print("reading temperature...")
@@ -137,6 +189,7 @@ class temperatureController:
     print(rc)
     client.subscribe(self.mqttControlTopicTempSetPoint)
     client.subscribe(self.mqttControlTopicFineTune)
+    client.publish(self.configData[self.configSectionMQTT]["topicIsAlive"], '{"state": "OFF"}', qos=2)
 
   def on_MqttMessage(self,client, userdata, message):
     print("gotMessage")
