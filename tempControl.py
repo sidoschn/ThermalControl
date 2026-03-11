@@ -40,7 +40,7 @@ class temperatureController:
   configFileName = "thermalControlConfig.ini"
   currentTemps = []
   angles = [None] * nServos
-  targetTemperature = 35 #
+  #targetTemperature = 35 # legacy
   currentTemp = 30
   maxRange = 50 #
   
@@ -180,7 +180,7 @@ class temperatureController:
     for sensor in sensors:
       self.mqttClient.publish(sensor.mqttTopic , str(sensor.lastReadTemp), qos=2)
     
-    self.mqttClient.publish(self.mqttTopicTempSetPoint, str(self.targetTemperature), qos=2)
+    self.mqttClient.publish(self.configData[self.configSectionMQTT]["topicTempSetPoint"], str(self.pid.setpoint), qos=2)
 
   def publishAngles(self, angles):
     for angle in angles:
