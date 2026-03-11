@@ -43,7 +43,7 @@ class temperatureController:
   targetTemperature = 35 #
   currentTemp = 30
   maxRange = 50 #
-  mqttClient = mqtt.Client(client_id="ThermalController")
+  
   mqttTopicIsAliveState = "thermalControl/isAlive"
   #mqttTopic01 = "thermalControl/tempAnbauVorlauf" #legacy
   mqttTopic02 = "thermalControl/servoAngle" #not really legacy yet
@@ -97,6 +97,7 @@ class temperatureController:
 
   def __init__(self):
 
+    ## -- loading config
     self.configData = self.loadConfig()
     
     #self.sensors = self.loadThemralSensors()
@@ -105,9 +106,15 @@ class temperatureController:
     #print(self.configData[self.configSectionGeneral]["PIDi"])
     #print(float(self.configData[self.configSectionGeneral]["PIDi"]))
 
+    
     self.pid = PID(float(self.configData[self.configSectionGeneral]["PIDp"]), float(self.configData[self.configSectionGeneral]["PIDi"]), float(self.configData[self.configSectionGeneral]["PIDd"]), setpoint=float(self.configData[self.configSectionGeneral]["targetTemperature01"]), starting_output = 90)
     self.pid.sample_time = int(self.configData[self.configSectionGeneral]["samplingLoopTime"])
     self.pid.output_limits = (90-int(self.configData[self.configSectionGeneral]["maxAngleRange"]), 90+int(self.configData[self.configSectionGeneral]["maxAngleRange"]))
+    print("setpoint temperature: "+str(self.pid.setpoint))
+
+
+    ## -- initializing mqtt client
+    self.mqttClient = mqtt.Client(client_id="ThermalController")
     self.mqttClient.on_connect = self.on_MqttConnect
     self.mqttClient.on_message = self.on_MqttMessage
     self.mqttClient.will_set(self.configData[self.configSectionMQTT]["topicIsAlive"], '{"state": "OFF"}', qos=2)
@@ -119,7 +126,7 @@ class temperatureController:
     self.main()
 
   def loadConfig(self):
-    
+
     if not os.path.isfile(self.configFileName):
       print("generating new config file from defaults")
       with open(self.configFileName, 'w') as configFile:
