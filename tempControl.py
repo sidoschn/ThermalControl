@@ -203,6 +203,8 @@ class temperatureController:
     client.subscribe(self.mqttControlTopicTempSetPoint)
     client.subscribe(self.mqttControlTopicFineTune)
     client.publish(self.configData[self.configSectionMQTT]["topicIsAlive"], '{"state": "ON"}', qos=2)
+    print(self.configData[self.configSectionMQTT]["topicTempSetPoint"])
+    print(str(self.pid.setpoint))
     client.publish(self.configData[self.configSectionMQTT]["topicTempSetPoint"], str(self.pid.setpoint) , qos=2)
     printMessage = "Current PID parameters "+str(self.pid.Kp)+" "+str(self.pid.Ki)+" "+str(self.pid.Kd)
     print(printMessage)
