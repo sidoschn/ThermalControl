@@ -218,9 +218,17 @@ class temperatureController:
   def displayTemperatures(self):
     while True:
       for sensor in self.sensors:
+        if len(sensor.shortID)>2:
+          prefix = str(sensor.shortID)[:2]
+        else:
+          if len(sensor.shortID) == 2:
+            prefix = str(sensor.shortID) # if short ID is exactly 2 characters long
+          else:
+            prefix = str(sensor.shortID) + " " # if short ID is exactly 1 charater long (or zero but that should be impractical)
+
         try:
           #tm.temperature(round(sensor.lastReadTemp))
-          tm.show(str(sensor.shortID)[:1]+str(round(sensor.lastReadTemp)))
+          tm.show(prefix+str(round(sensor.lastReadTemp)))
           time.sleep(float(self.configData[self.configSectionGeneral]["displayLoopTime"]))
           print("Display: "+str(sensor.shortID)+" "+str((sensor.lastReadTemp)))
         except:
