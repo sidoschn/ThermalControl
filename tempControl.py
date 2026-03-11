@@ -46,7 +46,7 @@ class temperatureController:
   mqttClient = mqtt.Client(client_id="ThermalController")
   mqttTopicIsAliveState = "thermalControl/isAlive"
   #mqttTopic01 = "thermalControl/tempAnbauVorlauf" #legacy
-  #mqttTopic02 = "thermalControl/servoAngle" #legacy
+  mqttTopic02 = "thermalControl/servoAngle" #not really legacy yet
   mqttTopicTempSetPoint = "thermalControl/tempSetPoint"
   mqttControlTopicTempSetPoint = "thermalControl/tempSetPoint/set"
   mqttTopicFineTune = "thermalControl/fineTune"
