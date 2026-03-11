@@ -97,7 +97,7 @@ class temperatureController:
 
   def __init__(self):
 
-    self.configData = self.loadConifg()
+    self.configData = self.loadConfig()
     
     #self.sensors = self.loadThemralSensors()
 
