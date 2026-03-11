@@ -215,7 +215,7 @@ class temperatureController:
       for sensor in self.sensors:
         try:
           #tm.temperature(round(sensor.lastReadTemp))
-          tm.show(str(sensor.shortID)+" "+str(round(sensor.lastReadTemp)))
+          tm.show(str(sensor.shortID)[0]+" "+str(round(sensor.lastReadTemp)))
           time.sleep(float(self.configData[self.configSectionGeneral]["displayLoopTime"]))
           print("Display: "+str(sensor.shortID)+" "+str((sensor.lastReadTemp)))
         except:
