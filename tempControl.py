@@ -149,12 +149,12 @@ class temperatureController:
       sensors.append(DS18B20(sensor_id))
       print("sensor: "+ str(sensor_id))
     return sensors
-
-  def readTemperature(self):
-    #print("reading temperature...")
-    #print("not implemented yet")
-    self.currentTemp = sensor.get_temperature()
-    return self.currentTemp
+  # # legacy
+  # def readTemperature(self):
+  #   #print("reading temperature...")
+  #   #print("not implemented yet")
+  #   self.currentTemp = sensor.get_temperature()
+  #   return self.currentTemp
   
   def readTemperatures(self):
     for sensor in sensors:
