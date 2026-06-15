@@ -54,6 +54,7 @@ class temperatureController:
   mqttControlTopicFineTune = "thermalControl/fineTune/set"
   mqttBroker = "192.168.0.39"
   loopTime = 10
+  self.flag_MQTTconnected = False
 
   #defining the default config dict the config.ini is generated from
   defaultConfig = configparser.ConfigParser()
@@ -130,10 +131,13 @@ class temperatureController:
     ## -- initializing mqtt client
     self.mqttClient = mqtt.Client(client_id="ThermalController")
     self.mqttClient.on_connect = self.on_MqttConnect
+    self.mqttClient.on_disconnect = self.on_MqttDisconnect
     self.mqttClient.on_message = self.on_MqttMessage
     self.mqttClient.will_set(self.configData[self.configSectionMQTT]["topicIsAlive"], '{"state": "OFF"}', qos=2)
-    self.mqttClient.connect(self.configData[self.configSectionMQTT]["brokerIP"], int(self.configData[self.configSectionMQTT]["brokerPort"]), 60)
-    self.mqttClient.loop_start()
+
+    ## this has been moved to main() to account for missing or changing network connections
+    # self.mqttClient.connect(self.configData[self.configSectionMQTT]["brokerIP"], int(self.configData[self.configSectionMQTT]["brokerPort"]), 60)
+    # self.mqttClient.loop_start()
 
     self.main()
 
@@ -237,14 +241,16 @@ class temperatureController:
           print("temperature has not been read/short ID was not yet assigned")
 
   def publishTemps(self):
-    for sensor in self.sensors:
-      self.mqttClient.publish(sensor.mqttTopic , str(sensor.lastReadTemp), qos=2)
-    
-    self.mqttClient.publish(self.configData[self.configSectionMQTT]["topicTempSetPoint"], str(self.pid.setpoint), qos=2)
+    if self.flag_MQTTconnected:
+      for sensor in self.sensors:
+        self.mqttClient.publish(sensor.mqttTopic , str(sensor.lastReadTemp), qos=2)
+      
+      self.mqttClient.publish(self.configData[self.configSectionMQTT]["topicTempSetPoint"], str(self.pid.setpoint), qos=2)
 
   def publishAngles(self, angles):
-    for angle in angles:
-      self.mqttClient.publish(self.mqttTopic02, str(angle), qos=2)
+    if self.flag_MQTTconnected:
+      for angle in angles:
+        self.mqttClient.publish(self.mqttTopic02, str(angle), qos=2)
     #publish.single(self.mqttTopic01, str(temp), hostname=self.mqttBroker)
     #publish.single(self.mqttTopic02, str(angle), hostname=self.mqttBroker)
 
@@ -259,6 +265,7 @@ class temperatureController:
 
   def on_MqttConnect(self,client, userdata, flags, rc):
     print("mqtt connected")
+    self.flag_MQTTconnected = True
     print(rc)
     client.subscribe(self.mqttControlTopicTempSetPoint)
     client.subscribe(self.mqttControlTopicFineTune)
@@ -269,6 +276,10 @@ class temperatureController:
     printMessage = "Current PID parameters "+str(self.pid.Kp)+" "+str(self.pid.Ki)+" "+str(self.pid.Kd)
     print(printMessage)
     client.publish(self.configData[self.configSectionMQTT]["topicFineTune"], printMessage)
+
+  def on_MqttDisconnect(self,client, userdata, flags, rc):
+    print("mqtt disconnected")
+    self.flag_MQTTconnected = False
 
   def on_MqttMessage(self,client, userdata, message):
     print("gotMessage")
@@ -329,12 +340,23 @@ class temperatureController:
     displayTemperaturesThread.start()
 
     while True:
+      
+      if not self.flag_MQTTconnected:
+        try:
+          self.mqttClient.connect(self.configData[self.configSectionMQTT]["brokerIP"], int(self.configData[self.configSectionMQTT]["brokerPort"]), 60)
+          self.mqttClient.loop_start()
+        except:
+          print("mqtt connection failed")
+
+
       self.readTemperatures()
       #self.displayTemperatures()
       #self.publishTemp(readTemp)
       self.angles[0] = self.pid(self.pid.sensor.lastReadTemp)
+
       self.publishAngles(self.angles)
       self.publishTemps()
+      
       print(str(self.angles[0])+" "+str(self.pid.sensor.lastReadTemp))
       try:
         servo0.angle = float(self.angles[0])
