@@ -54,7 +54,7 @@ class temperatureController:
   mqttControlTopicFineTune = "thermalControl/fineTune/set"
   mqttBroker = "192.168.0.39"
   loopTime = 10
-  self.flag_MQTTconnected = False
+  flag_MQTTconnected = False
 
   #defining the default config dict the config.ini is generated from
   defaultConfig = configparser.ConfigParser()
