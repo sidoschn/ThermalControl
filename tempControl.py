@@ -342,6 +342,7 @@ class temperatureController:
     while True:
       
       if not self.flag_MQTTconnected:
+        print("mqtt not connected, attempting re-connect")
         try:
           self.mqttClient.connect(self.configData[self.configSectionMQTT]["brokerIP"], int(self.configData[self.configSectionMQTT]["brokerPort"]), 60)
           self.mqttClient.loop_start()
