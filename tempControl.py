@@ -234,7 +234,7 @@ class temperatureController:
           #tm.temperature(round(sensor.lastReadTemp))
           tm.show(prefix+str(round(sensor.lastReadTemp)))
           time.sleep(float(self.configData[self.configSectionGeneral]["displayLoopTime"]))
-          print("Display: "+str(sensor.shortID)+" "+str((sensor.lastReadTemp)))
+          #print("Display: "+str(sensor.shortID)+" "+str((sensor.lastReadTemp)))
         except:
           tm.show("----")
           time.sleep(float(self.configData[self.configSectionGeneral]["displayLoopTime"]))
@@ -358,7 +358,7 @@ class temperatureController:
       self.publishAngles(self.angles)
       self.publishTemps()
       
-      print(str(self.angles[0])+" "+str(self.pid.sensor.lastReadTemp))
+      #print(str(self.angles[0])+" "+str(self.pid.sensor.lastReadTemp))
       try:
         servo0.angle = float(self.angles[0])
       except:
