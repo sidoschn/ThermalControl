@@ -1,0 +1,5 @@
+Relay Pins:
+1 GPIO17
+2 GPIO27
+3 GPIO22
+4 GPIO25
