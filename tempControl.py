@@ -12,6 +12,8 @@ from string import ascii_uppercase
 import threading
 import configparser
 import os.path
+import RPi.GPIO as GPIO
+import os
 
 updater.performAutoupdate()
 
@@ -86,6 +88,16 @@ class temperatureController:
   defaultConfig[configSectionMQTT]["thermalSensorBaseTopic"] = "thermalControl/thermalSensors/"
 
   defaultConfig[configSectionSensors] = {}
+
+  outputPins = {
+    1:'17',
+    2:'27',
+    3:'22',
+    4:'25'
+  }
+
+
+
   # sensor structure:
   # #problably unneccessarily complex {sensorID : {shortId:"short ID(eg. A, B,...)", description:"some description"}}
   # {sensorID : shortId}
@@ -134,6 +146,9 @@ class temperatureController:
     self.mqttClient.on_disconnect = self.on_MqttDisconnect
     self.mqttClient.on_message = self.on_MqttMessage
     self.mqttClient.will_set(self.configData[self.configSectionMQTT]["topicIsAlive"], '{"state": "OFF"}', qos=2)
+
+    ## -- initializing the relais pins
+    self.initOutputPins(self.pinDict)
 
     ## this has been moved to main() to account for missing or changing network connections
     # self.mqttClient.connect(self.configData[self.configSectionMQTT]["brokerIP"], int(self.configData[self.configSectionMQTT]["brokerPort"]), 60)
@@ -332,6 +347,9 @@ class temperatureController:
       case _:
         print("unknown topic, message is ignored")
 
+  def initOutputPins(pinDict):
+    for outPin in pinDict.values():
+        os.system('pinctrl '+ outPin +' op dh')
 
   def main(self):
     print("main")
