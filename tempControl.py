@@ -379,7 +379,7 @@ class temperatureController:
         os.system('pinctrl '+ outPin +' op dh')
 
   def switchRelais(self, pinChannel, bEnable, client):
-    
+    print("switching pump " +str(bEnable))
     if str(bEnable) == "ON":
         os.system('pinctrl '+ self.outputPins[pinChannel]+' dl')
         print("Started pump")        
