@@ -93,8 +93,8 @@ class temperatureController:
   ## -- pump controlls
   nPumps = 4
 
-  mqttTopicsPumps = []
-  mqttTopicsPumpsSet = []
+  mqttTopicsPumps = [None]*nPumps
+  mqttTopicsPumpsSet = [None]*nPumps
   for i in range(nPumps):
     mqttTopicsPumps[i] = "thermalControl/pumps/pumpRelais"+str(i)
     mqttTopicsPumpsSet[i] = "thermalControl/pumps/pumpRelais"+str(i)+"/set"
