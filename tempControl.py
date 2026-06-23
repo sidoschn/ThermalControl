@@ -362,7 +362,8 @@ class temperatureController:
         printMessage = "Current PID parameters "+str(self.pid.Kp)+" "+str(self.pid.Ki)+" "+str(self.pid.Kd)
         print(printMessage)
         client.publish(self.mqttTopicFineTune, printMessage)
-      case any(self.mqttTopicsPumpsSet):
+
+      case self.mqttTopicsPumpsSet:
         print("pump command received")
         messageParts = message.topic.split("/")
         relaisIdxString = messageParts[-2]
