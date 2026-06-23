@@ -303,8 +303,8 @@ class temperatureController:
     print(str(self.pid.setpoint))
     client.publish(self.configData[self.configSectionMQTT]["topicTempSetPoint"], str(self.pid.setpoint) , qos=2)
 
-    for topic in self.mqttTopicsPumps:
-      client.publish(topic, )
+    for i in range(self.nPumps):
+      client.publish(self.mqttTopicsPumps[i], self.pumpStates[i] )
 
     printMessage = "Current PID parameters "+str(self.pid.Kp)+" "+str(self.pid.Ki)+" "+str(self.pid.Kd)
     print(printMessage)
