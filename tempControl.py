@@ -381,12 +381,12 @@ class temperatureController:
   def switchRelais(self, pinChannel, bEnable, client):
     print("switching pump " +str(bEnable))
     if bEnable == b'OFF':
-        os.system('pinctrl '+ self.outputPins[pinChannel]+' dl')
+        #os.system('pinctrl '+ self.outputPins[pinChannel]+' dl')
         print("Started pump")        
         self.pumpStates[pinChannel] = bEnable
         client.publish(self.mqttTopicsPumps[pinChannel], "ON", qos=2)
     elif bEnable == b'ON':
-        os.system('pinctrl '+self.outputPins[pinChannel]+' dh')
+        #os.system('pinctrl '+self.outputPins[pinChannel]+' dh')
         print("Stopped pump")
         self.pumpStates[pinChannel] = bEnable
         client.publish(self.mqttTopicsPumps[pinChannel], "OFF", qos=2)
