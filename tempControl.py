@@ -158,7 +158,7 @@ class temperatureController:
     self.mqttClient.will_set(self.configData[self.configSectionMQTT]["topicIsAlive"], '{"state": "OFF"}', qos=2)
 
     ## -- initializing the relais pins
-    self.initOutputPins(self.pinDict)
+    self.initOutputPins(self.outputPins)
 
     ## this has been moved to main() to account for missing or changing network connections
     # self.mqttClient.connect(self.configData[self.configSectionMQTT]["brokerIP"], int(self.configData[self.configSectionMQTT]["brokerPort"]), 60)
