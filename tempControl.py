@@ -105,6 +105,7 @@ class temperatureController:
     2:'22',
     3:'25'
   }
+  pumpStates = ["off","off","off","off"]
 
 
 
@@ -301,6 +302,10 @@ class temperatureController:
     print(self.configData[self.configSectionMQTT]["topicTempSetPoint"])
     print(str(self.pid.setpoint))
     client.publish(self.configData[self.configSectionMQTT]["topicTempSetPoint"], str(self.pid.setpoint) , qos=2)
+
+    for topic in self.mqttTopicsPumps:
+      client.publish(topic, )
+
     printMessage = "Current PID parameters "+str(self.pid.Kp)+" "+str(self.pid.Ki)+" "+str(self.pid.Kd)
     print(printMessage)
     client.publish(self.configData[self.configSectionMQTT]["topicFineTune"], printMessage)
@@ -363,6 +368,7 @@ class temperatureController:
         relaisIdxString = messageParts[-2]
         relaisIdx = int(relaisIdxString[-1:])
         print("command for pump "+str(relaisIdx))
+        self.switchRelais(self, relaisIdx, message.payload, client)
         
       case _:
         print("unknown topic, message is ignored")
@@ -376,10 +382,12 @@ class temperatureController:
     if bEnable == "on":
         os.system('pinctrl '+ self.outputPins[pinChannel]+' dl')
         print("Started pump")        
+        self.pumpStates[pinChannel] = bEnable
         client.publish(self.mqttTopicsPumps[pinChannel], '{"state": "ON"}', qos=2)
     elif bEnable == "off":
         os.system('pinctrl '+self.outputPins[pinChannel]+' dh')
         print("Stopped pump")
+        self.pumpStates[pinChannel] = bEnable
         client.publish(self.mqttTopicsPumps[pinChannel], '{"state": "OFF"}', qos=2)
     
 
