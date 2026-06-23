@@ -54,6 +54,7 @@ class temperatureController:
   mqttControlTopicTempSetPoint = "thermalControl/tempSetPoint/set"
   mqttTopicFineTune = "thermalControl/fineTune"
   mqttControlTopicFineTune = "thermalControl/fineTune/set"
+  
   mqttBroker = "192.168.0.39"
   loopTime = 10
   flag_MQTTconnected = False
@@ -89,11 +90,20 @@ class temperatureController:
 
   defaultConfig[configSectionSensors] = {}
 
+  ## -- pump controlls
+  nPumps = 4
+
+  mqttTopicsPumps = []
+  mqttTopicsPumpsSet = []
+  for i in range(nPumps):
+    mqttTopicsPumps[i] = "thermalControl/pumps/pumpRelais"+str(i)
+    mqttTopicsPumpsSet[i] = "thermalControl/pumps/pumpRelais"+str(i)+"/set"
+  
   outputPins = {
-    1:'17',
-    2:'27',
-    3:'22',
-    4:'25'
+    0:'17',
+    1:'27',
+    2:'22',
+    3:'25'
   }
 
 
@@ -284,6 +294,9 @@ class temperatureController:
     print(rc)
     client.subscribe(self.mqttControlTopicTempSetPoint)
     client.subscribe(self.mqttControlTopicFineTune)
+    for topic in self.mqttTopicsPumpsSet:
+      client.subscribe(topic)
+
     client.publish(self.configData[self.configSectionMQTT]["topicIsAlive"], '{"state": "ON"}', qos=2)
     print(self.configData[self.configSectionMQTT]["topicTempSetPoint"])
     print(str(self.pid.setpoint))
@@ -344,12 +357,32 @@ class temperatureController:
         printMessage = "Current PID parameters "+str(self.pid.Kp)+" "+str(self.pid.Ki)+" "+str(self.pid.Kd)
         print(printMessage)
         client.publish(self.mqttTopicFineTune, printMessage)
+      case any(self.mqttTopicsPumpsSet):
+        print("pump command received")
+        messageParts = message.topic.split("/")
+        relaisIdxString = messageParts[-2]
+        relaisIdx = int(relaisIdxString[-1:])
+        print("command for pump "+str(relaisIdx))
+        
       case _:
         print("unknown topic, message is ignored")
 
-  def initOutputPins(pinDict):
+  def initOutputPins(self, pinDict):
     for outPin in pinDict.values():
         os.system('pinctrl '+ outPin +' op dh')
+
+  def switchRelais(self, pinChannel, bEnable, client):
+    
+    if bEnable == "on":
+        os.system('pinctrl '+ self.outputPins[pinChannel]+' dl')
+        print("Started pump")        
+        client.publish(self.mqttTopicsPumps[pinChannel], '{"state": "ON"}', qos=2)
+    elif bEnable == "off":
+        os.system('pinctrl '+self.outputPins[pinChannel]+' dh')
+        print("Stopped pump")
+        client.publish(self.mqttTopicsPumps[pinChannel], '{"state": "OFF"}', qos=2)
+    
+
 
   def main(self):
     print("main")
