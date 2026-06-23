@@ -363,7 +363,7 @@ class temperatureController:
         print(printMessage)
         client.publish(self.mqttTopicFineTune, printMessage)
 
-      case self.mqttTopicsPumpsSet:
+      case self.mqttTopicsPumpsSet[ß]:
         print("pump command received")
         messageParts = message.topic.split("/")
         relaisIdxString = messageParts[-2]
@@ -380,12 +380,12 @@ class temperatureController:
 
   def switchRelais(self, pinChannel, bEnable, client):
     
-    if bEnable == "on":
+    if bEnable == "ON":
         os.system('pinctrl '+ self.outputPins[pinChannel]+' dl')
         print("Started pump")        
         self.pumpStates[pinChannel] = bEnable
         client.publish(self.mqttTopicsPumps[pinChannel], '{"state": "ON"}', qos=2)
-    elif bEnable == "off":
+    elif bEnable == "OFF":
         os.system('pinctrl '+self.outputPins[pinChannel]+' dh')
         print("Stopped pump")
         self.pumpStates[pinChannel] = bEnable
