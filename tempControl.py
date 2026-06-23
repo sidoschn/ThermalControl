@@ -376,17 +376,17 @@ class temperatureController:
 
   def initOutputPins(self, pinDict):
     for outPin in pinDict.values():
-        os.system('pinctrl '+ outPin +' op dh')
+        os.system('sudo pinctrl '+ outPin +' op dh')
 
   def switchRelais(self, pinChannel, bEnable, client):
     print("switching pump " +str(bEnable))
     if bEnable == b'ON':
-        #os.system('pinctrl '+ self.outputPins[pinChannel]+' dl')
+        os.system('sudo pinctrl '+ self.outputPins[pinChannel]+' dl')
         print("Started pump")        
         self.pumpStates[pinChannel] = bEnable
         client.publish(self.mqttTopicsPumps[pinChannel], "ON", qos=2)
     elif bEnable == b'OFF':
-        #os.system('pinctrl '+self.outputPins[pinChannel]+' dh')
+        os.system('sudo pinctrl '+self.outputPins[pinChannel]+' dh')
         print("Stopped pump")
         self.pumpStates[pinChannel] = bEnable
         client.publish(self.mqttTopicsPumps[pinChannel], "OFF", qos=2)
