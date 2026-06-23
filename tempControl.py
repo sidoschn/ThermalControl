@@ -318,7 +318,7 @@ class temperatureController:
     print("gotMessage")
     print(message.topic)
     print(message.payload)
-    
+
     match message.topic:
       case self.mqttControlTopicTempSetPoint:
         print("changing temperature set point to "+ str(float(message.payload)))
@@ -363,7 +363,7 @@ class temperatureController:
         print(printMessage)
         client.publish(self.mqttTopicFineTune, printMessage)
 
-      case self.mqttTopicsPumpsSet[ß]:
+      case x if x in self.mqttTopicsPumpsSet:
         print("pump command received")
         messageParts = message.topic.split("/")
         relaisIdxString = messageParts[-2]
