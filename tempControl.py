@@ -369,7 +369,7 @@ class temperatureController:
         relaisIdxString = messageParts[-2]
         relaisIdx = int(relaisIdxString[-1:])
         print("command for pump "+str(relaisIdx))
-        self.switchRelais(self, relaisIdx, message.payload, client)
+        self.switchRelais(relaisIdx, message.payload, client)
         
       case _:
         print("unknown topic, message is ignored")
