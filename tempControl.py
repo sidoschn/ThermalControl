@@ -235,7 +235,10 @@ class temperatureController:
   
   def readTemperatures(self):
     for sensor in self.sensors:
-      sensor.lastReadTemp = sensor.get_temperature()
+      try:
+        sensor.lastReadTemp = sensor.get_temperature()
+      except:
+        print("sensor error, readout was skipped")
       
     #print("reading temperature...")
     #print("not implemented yet")
