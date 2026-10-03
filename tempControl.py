@@ -81,7 +81,6 @@ class temperatureController:
   defaultConfig[configSectionMQTT]["clientID"] = "ThermalController"
   defaultConfig[configSectionMQTT]["brokerIP"] = "192.168.0.39"
   defaultConfig[configSectionMQTT]["brokerPort"] = str(1883)
-  defaultConfig[configSectionMQTT]["brokerIP"] = "192.168.0.39"
   defaultConfig[configSectionMQTT]["topicIsAlive"] = "thermalControl/isAlive"
   defaultConfig[configSectionMQTT]["topicTempSetPoint"] = "thermalControl/tempSetPoint"
   defaultConfig[configSectionMQTT]["controlTopicTempSetPoint"] = "thermalControl/tempSetPoint/set"
