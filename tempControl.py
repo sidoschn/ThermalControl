@@ -4,7 +4,7 @@ import time
 from simple_pid import PID
 import paho.mqtt.publish as publish
 import paho.mqtt.client as mqtt
-import board
+import board 
 from adafruit_pca9685 import PCA9685
 from adafruit_motor import servo
 import autoUpdate as updater
@@ -64,6 +64,7 @@ class temperatureController:
   configSectionGeneral = "General"
   configSectionMQTT = "MQTT"
   configSectionSensors = "Sensors"
+  configSectionPumps = "Pumps"
 
   defaultConfig[configSectionGeneral] = {}
   defaultConfig[configSectionGeneral]["targetTemperature01"] = str(35)
@@ -90,7 +91,13 @@ class temperatureController:
 
   defaultConfig[configSectionSensors] = {}
 
-  ## -- pump controlls
+  defaultConfig[configSectionPumps] = {}
+  defaultConfig[configSectionPumps]["Pump0State"] = "OFF"
+  defaultConfig[configSectionPumps]["Pump1State"] = "OFF"
+  defaultConfig[configSectionPumps]["Pump2State"] = "OFF"
+  defaultConfig[configSectionPumps]["Pump3State"] = "OFF"
+
+  ## -- pump controls
   nPumps = 4
 
   mqttTopicsPumps = [None]*nPumps
@@ -160,6 +167,9 @@ class temperatureController:
 
     ## -- initializing the relais pins
     self.initOutputPins(self.outputPins)
+
+    ## -- setting the pump states to last known states
+    self.initPumpStates(self.outputPins)
 
     ## this has been moved to main() to account for missing or changing network connections
     # self.mqttClient.connect(self.configData[self.configSectionMQTT]["brokerIP"], int(self.configData[self.configSectionMQTT]["brokerPort"]), 60)
@@ -381,19 +391,38 @@ class temperatureController:
     for outPin in pinDict.values():
         os.system('sudo pinctrl '+ outPin +' op dh')
 
+  def initPumpStates(self, pinDict):
+      
+      for pump in pinDict:
+          print("initializing Pump:"+str(pump))
+          stateToSet = self.configData[self.configSectionPumps]["Pump"+str(pump)+"State"]
+          if stateToSet == "ON":
+            os.system('sudo pinctrl '+ pump.value() +' op dl')
+          else:
+            os.system('sudo pinctrl '+ pump.value() +' op dh')
+  
+
   def switchRelais(self, pinChannel, bEnable, client):
     print("switching pump " +str(bEnable))
     if bEnable == b'ON':
         print("Started pump "+self.outputPins[pinChannel])  
         os.system('sudo pinctrl '+ self.outputPins[pinChannel]+' dl')
               
-        self.pumpStates[pinChannel] = bEnable
+        self.pumpStates[pinChannel] = "ON"
+        self.configData[self.configSectionPumps]["Pump"+str(pinChannel)+"State"] = "ON"
+        self.updateConfig()
+                    
+        #self.pumpStates[pinChannel] = bEnable
         client.publish(self.mqttTopicsPumps[pinChannel], "ON", qos=2)
     elif bEnable == b'OFF':
         print("Stopped pump at pin "+(self.outputPins[pinChannel]))
         os.system('sudo pinctrl '+self.outputPins[pinChannel]+' dh')
         
-        self.pumpStates[pinChannel] = bEnable
+        self.pumpStates[pinChannel] = "OFF"
+        self.pumpStates[pinChannel] = "OFF"
+        self.configData[self.configSectionPumps]["Pump"+str(pinChannel)+"State"] = "OFF"
+        self.updateConfig()
+        #self.pumpStates[pinChannel] = bEnable
         client.publish(self.mqttTopicsPumps[pinChannel], "OFF", qos=2)
     
 
