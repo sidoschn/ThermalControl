@@ -396,9 +396,9 @@ class temperatureController:
           print("initializing Pump:"+str(pump))
           stateToSet = self.configData[self.configSectionPumps]["Pump"+str(pump)+"State"]
           if stateToSet == "ON":
-            os.system('sudo pinctrl '+ pump.value() +' op dl')
+            os.system('sudo pinctrl '+ pinDict[pump] +' op dl')
           else:
-            os.system('sudo pinctrl '+ pump.value() +' op dh')
+            os.system('sudo pinctrl '+ pinDict[pump] +' op dh')
   
 
   def switchRelais(self, pinChannel, bEnable, client):
@@ -423,9 +423,8 @@ class temperatureController:
         self.updateConfig()
         #self.pumpStates[pinChannel] = bEnable
         client.publish(self.mqttTopicsPumps[pinChannel], "OFF", qos=2)
+
     
-
-
   def main(self):
     print("main")
 
