@@ -397,8 +397,10 @@ class temperatureController:
           stateToSet = self.configData[self.configSectionPumps]["Pump"+str(pump)+"State"]
           if stateToSet == "ON":
             os.system('sudo pinctrl '+ pinDict[pump] +' op dl')
+            print("set State: On")
           else:
             os.system('sudo pinctrl '+ pinDict[pump] +' op dh')
+            print("set State: Off")
   
 
   def switchRelais(self, pinChannel, bEnable, client):
