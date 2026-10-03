@@ -418,7 +418,6 @@ class temperatureController:
         os.system('sudo pinctrl '+self.outputPins[pinChannel]+' dh')
         
         self.pumpStates[pinChannel] = "OFF"
-        self.pumpStates[pinChannel] = "OFF"
         self.configData[self.configSectionPumps]["Pump"+str(pinChannel)+"State"] = "OFF"
         self.updateConfig()
         #self.pumpStates[pinChannel] = bEnable
